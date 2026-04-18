@@ -13,12 +13,12 @@ A command-line based student attendance system built with C and MySQL. The progr
 - [File-by-File Explanation](#file-by-file-explanation)
   - [include/functions.h](#includefunctionsh)
   - [database/db.c](#databasedbc)
-  - [partials/addstudent.c](#partialsaddstudentc)
-  - [partials/markattendance.c](#partialsmarkattendancec)
-  - [partials/showall.c](#partialsshowallc)
-  - [partials/markall.c](#partialsmarkallc)
-  - [partials/searchstudent.c](#partialssearchstudentc)
-  - [partials/deletestudent.c](#partialsdeletestudentc)
+  - [functions/addstudent.c](#functionsaddstudentc)
+  - [functions/markattendance.c](#functionsmarkattendancec)
+  - [functions/showall.c](#functionsshowallc)
+  - [functions/markall.c](#functionsmarkallc)
+  - [functions/searchstudent.c](#functionssearchstudentc)
+  - [functions/deletestudent.c](#functionsdeletestudentc)
   - [main.c](#mainc)
 - [Database Schema](#database-schema)
 - [Concepts Used](#concepts-used)
@@ -35,7 +35,7 @@ student-attendance-tracing-system/
 │   └── functions.h             # header file with function declarations
 ├── database/
 │   └── db.c                    # MySQL connection setup and close
-├── partials/
+├── functions/
 │   ├── addstudent.c            # add a new student to database
 │   ├── markattendance.c        # mark attendance for a single student
 │   ├── markall.c               # mark attendance for all students
@@ -45,14 +45,14 @@ student-attendance-tracing-system/
 └── README.md
 ```
 
-The project is organized into four parts. `main.c` handles the menu loop and user interaction only. `database/db.c` handles MySQL connection setup and teardown. Each feature function lives in its own file inside `partials/` — one file per function. `include/functions.h` is the header file that declares all functions and the shared database connection variable so every file can use them.
+The project is organized into four parts. `main.c` handles the menu loop and user interaction only. `database/db.c` handles MySQL connection setup and teardown. Each feature function lives in its own file inside `functions/` — one file per function. `include/functions.h` is the header file that declares all functions and the shared database connection variable so every file can use them.
 
 ---
 
 ## How to Build and Run
 
 ```bash
-gcc main.c database/db.c partials/addstudent.c partials/markattendance.c partials/showall.c partials/markall.c partials/searchstudent.c partials/deletestudent.c $(mysql_config --cflags --libs) -o attendance
+gcc main.c database/db.c functions/addstudent.c functions/markattendance.c functions/showall.c functions/markall.c functions/searchstudent.c functions/deletestudent.c $(mysql_config --cflags --libs) -o attendance
 ./attendance
 ```
 
@@ -131,7 +131,7 @@ The `closedb()` function simply calls `mysql_close(conn)` which properly closes 
 
 ---
 
-### partials/addstudent.c
+### functions/addstudent.c
 
 This file contains the `addstudent()` function which inserts a new student record into the database.
 
@@ -145,7 +145,7 @@ Then `mysql_query(conn, sql)` executes the query against the database. It return
 
 ---
 
-### partials/markattendance.c
+### functions/markattendance.c
 
 This file contains the `markattendance()` function which marks attendance for a single student by their ID.
 
@@ -167,7 +167,7 @@ The UPDATE query is executed with `mysql_query()` and the result is checked. On 
 
 ---
 
-### partials/showall.c
+### functions/showall.c
 
 This file contains the `showall()` function which displays a formatted table of all students and their attendance percentages.
 
@@ -192,7 +192,7 @@ After the loop, `mysql_free_result(res)` releases the memory that was allocated 
 
 ---
 
-### partials/markall.c
+### functions/markall.c
 
 This file contains the `markall()` function which goes through every student in the database and marks attendance for each one in sequence.
 
@@ -210,7 +210,7 @@ After the loop ends (when `mysql_fetch_row()` returns NULL meaning no more rows)
 
 ---
 
-### partials/searchstudent.c
+### functions/searchstudent.c
 
 This file contains the `searchstudent()` function which looks up a single student by their ID and displays their full attendance report.
 
@@ -226,7 +226,7 @@ If the student is not found (`row == NULL`), it prints "Student not found." Eith
 
 ---
 
-### partials/deletestudent.c
+### functions/deletestudent.c
 
 This file contains the `deletestudent()` function which removes a student record from the database.
 
@@ -293,7 +293,7 @@ A header file (`.h`) declares function prototypes and shared variables that are 
 C projects are typically split into multiple `.c` files for organization. Each file is compiled independently into an object file (`.o`) containing machine code but with unresolved function calls. The linker then combines all object files together, resolving cross-file function calls and library references into a single executable. The header file enables this by telling each compilation unit what functions and variables exist in other files. The build command compiles all `.c` files together in one step with gcc.
 
 ### 5. Modular Design
-Each function lives in its own file in the `partials/` directory. This is called modularity — each file has a single responsibility. If there is a bug in the mark attendance feature, you only need to open `partials/markattendance.c`. If you want to change how the table looks, you open `partials/showall.c`. Changes to one file do not affect others as long as the function signatures in the header remain the same.
+Each function lives in its own file in the `functions/` directory. This is called modularity — each file has a single responsibility. If there is a bug in the mark attendance feature, you only need to open `functions/markattendance.c`. If you want to change how the table looks, you open `functions/showall.c`. Changes to one file do not affect others as long as the function signatures in the header remain the same.
 
 ### 6. Type Casting
 C performs integer division when both operands are integers, which truncates the decimal part. The expression `present / total` where both are `int` would give 0 for cases like 3/5. By casting one operand to float with `(float)present / total`, the compiler promotes the other operand to float as well and performs proper floating-point division, giving 0.6. This is essential for accurate percentage calculation.
